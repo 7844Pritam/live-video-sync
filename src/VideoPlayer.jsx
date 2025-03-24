@@ -4,9 +4,6 @@ import { db, ref, set, onValue } from '../firebase';
 const VideoPlayer = () => {
     const videoRef = useRef(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [videoUrl, setVideoUrl] = useState(''); // Store the video URL
-    const [userVideoUrl, setUserVideoUrl] = useState(''); // Store the input value for URL form
-    const [isFormVisible, setIsFormVisible] = useState(false); // To toggle the form visibility
 
     useEffect(() => {
         const videoStateRef = ref(db, 'videoState');
@@ -78,68 +75,27 @@ const VideoPlayer = () => {
         console.log('Time updated:', videoRef.current.currentTime);
     };
 
-    // Handle the video URL input submission
-    const handleUrlSubmit = (event) => {
-        event.preventDefault();
-        setVideoUrl(userVideoUrl); // Set the video URL from the input field
-        setIsFormVisible(false); // Hide the form after submitting the URL
-        console.log('Video URL set:', userVideoUrl);
-    };
-
     // Cinematic Effects: Dim lights when video is playing
     const overlayClass = isPlaying ? 'bg-black opacity-50' : 'bg-transparent';
 
     return (
         <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-gradient bg-black h-screen">
-            {isFormVisible ? (
-                <div className="flex justify-center items-center min-h-screen bg-gray-900">
-                    <form
-                        onSubmit={handleUrlSubmit}
-                        className="bg-gray-800 p-6 rounded-lg shadow-xl text-white"
+            <div className={`flex items-center justify-center min-h-screen bg-gray-900 p-4 ${overlayClass}`}>
+                <div className="w-full max-w-3xl bg-gray-800 rounded-lg shadow-xl overflow-hidden relative">
+                    <video
+                        ref={videoRef}
+                        onClick={togglePlayPause}
+                        controls
+                        className="w-full h-auto rounded-lg"
+                        onTimeUpdate={handleTimeUpdate}
                     >
-                        <h2 className="text-2xl mb-4">Enter Video URL</h2>
-                        <input
-                            type="text"
-                            placeholder="Enter video URL"
-                            value={userVideoUrl}
-                            onChange={(e) => setUserVideoUrl(e.target.value)}
-                            className="p-2 mb-4 w-full text-black"
+                        <source
+                            src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+                            type="video/mp4"
                         />
-                        <button
-                            type="submit"
-                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                        >
-                            Submit
-                        </button>
-                    </form>
+                        Your browser does not support the video tag.
+                    </video>
                 </div>
-            ) : (
-                <div className={`flex items-center justify-center min-h-screen bg-gray-900 p-4 ${overlayClass}`}>
-                    <div className="w-full max-w-3xl bg-gray-800 rounded-lg shadow-xl overflow-hidden relative">
-                        <video
-                            ref={videoRef}
-                            onClick={togglePlayPause}
-                            controls
-                            className="w-full h-auto rounded-lg"
-                            onTimeUpdate={handleTimeUpdate}
-                        >
-                            <source
-                                src={videoUrl || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"}
-                                type="video/mp4"
-                            />
-                            Your browser does not support the video tag.
-                        </video>
-                    </div>
-                </div>
-            )}
-
-            <div className="flex justify-center mt-4">
-                <button
-                    onClick={() => setIsFormVisible(true)}
-                    className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-                >
-                    Change Video
-                </button>
             </div>
 
             <style>{`
